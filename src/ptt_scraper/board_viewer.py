@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from abstract.board_viewer import BoardViewer
 
 class PttBoardViewer(BoardViewer):
-    BASE_URL = 'https://www.ptt.cc/bbs/'
+    BASE_URL = 'https://www.ptt.cc'
     SELECTOR = {
         'NAV_BUTTONS': 'div#action-bar-container div.btn-group-paging > a',
         'POSTS': 'div.r-list-container div.r-ent',
@@ -28,10 +28,11 @@ class PttBoardViewer(BoardViewer):
         }
         self.soup = None
 
-    def get(self, url: str, **headers: dict) -> t.Optional[Exception]:
+    def get(self, url: str, headers: t.Optional[dict] = None) -> t.Optional[Exception]:
         if not self.__check_url(url):
-            raise Exception(f'Request url: {url} is not PTT board.')
-
+            raise Exception(f'Request url: {url} is not a PTT board link.')
+        
+        headers = headers or self.status.get('headers')
         req = requests.get(url, headers = headers)
         self.__set_status(url, req)
 
@@ -69,7 +70,7 @@ class PttBoardViewer(BoardViewer):
         if self.__is_disable(nextElement):
             return None
         else:
-            return f'{self.BASE_URL}{prevElement["href"]}'
+            return f'{self.BASE_URL}{nextElement["href"]}'
 
     def __is_disable(self, soup) -> bool:
         return 'disabled' in soup['class']
@@ -81,14 +82,14 @@ class PttBoardViewer(BoardViewer):
         return f'{self.BASE_URL}{self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[3]["href"]}'
 
     def get_posts(self) -> list[dict]:
-        posts = self.soup(self.SELECTOR.get('POSTS'))
-        postMetas = []
+        posts = self.soup.select(self.SELECTOR.get('POSTS'))
+        post_metas = []
 
         for post in posts:
             if (self.__is_deleted(post)):
                 continue
 
-            postMetas.append(
+            post_metas.append(
                 {
                     'url': post.select(self.SELECTOR.get("POST_META").get("DATE"))[0].text,
                     'author': post.select(self.SELECTOR.get("POST_META").get("AUTHOR"))[0].text,
@@ -98,7 +99,7 @@ class PttBoardViewer(BoardViewer):
                 }
                 )
 
-        return postMetas
+        return post_metas
 
     def __is_deleted(self, postSoup) -> bool:
         return postSoup.select('div.title > a') == []
