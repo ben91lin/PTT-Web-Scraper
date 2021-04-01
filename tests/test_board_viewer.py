@@ -35,8 +35,9 @@ def test__set_status(instance):
         status_code = 200
         text = ''
     req = Test()
-    instance._PttBoardViewer__set_status(url = 'test', req = req)
-    assert instance.status['req_url'] == 'test'
+    instance._PttBoardViewer__set_status(url = 'https://ptt.cc/bbs/Beauty/index132.html', req = req)
+    assert instance.status['board'] == 'Beauty'
+    assert instance.status['req_url'] == 'https://ptt.cc/bbs/Beauty/index132.html'
     assert instance.status['res_code'] == 200
     assert isinstance(instance.soup, BeautifulSoup)
 
@@ -93,5 +94,5 @@ def test_get_posts(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
     post_metas = instance.get_posts()
     assert isinstance(post_metas, list)
-    assert list(post_metas[0].keys()) == ['url', 'author', 'title', 'date', 'pushNumber']
+    assert list(post_metas[0].keys()) == ['board', 'url', 'author', 'title', 'date', 'pushNumber']
 
