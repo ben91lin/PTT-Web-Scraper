@@ -44,6 +44,14 @@ class PttData:
         pushs.push(pushState, user, ip, datetime)
 
 class TupleStorage:
+    """
+        The TupleStorage work like tuple.
+        You can use X = TupleStorage.wrap(new_attributes: tuple) to set tuple keys.
+        And use X as constructor, Y = X(data: tuple) to storage data.
+        The len(keys) should equal to len(data).
+        Can use +, ==, in operator.
+        It's iterable.
+    """
     __hash__ = None
     attributes: tuple[str] = ()
 
@@ -90,9 +98,7 @@ class TupleStorage:
         return f'{name1}+{name2}'
 
     def __has_class(self, subclasses, target):
-        print(subclasses)
-        names = tuple(map(lambda sub: sub.__name__, subclasses))
-        if target in names:
+        if target in map(lambda sub: sub.__name__, subclasses):
             return True
         else:
             return False
