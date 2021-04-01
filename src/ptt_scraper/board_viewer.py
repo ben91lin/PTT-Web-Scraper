@@ -51,6 +51,7 @@ class PttBoardViewer(BoardViewer):
         return req.status_code == 200
 
     def __set_status(self, url: str, req: requests) -> None:
+        self.status['board'] = url.split('bbs/')[1].split('/index')[0]
         self.status['req_url'] = url
         self.status['res_code'] = req.status_code
         if self.__sucess(req):
@@ -91,6 +92,7 @@ class PttBoardViewer(BoardViewer):
 
             post_metas.append(
                 {
+                    'board': self.status['board'],
                     'url': post.select(self.SELECTOR.get("POST_META").get("DATE"))[0].text,
                     'author': post.select(self.SELECTOR.get("POST_META").get("AUTHOR"))[0].text,
                     'title': self.__regular_title(post.select(self.SELECTOR.get("POST_META").get("TITLE"))[0].text),
@@ -113,3 +115,6 @@ class PttBoardViewer(BoardViewer):
 
     def __regular_title(self, title: str) -> str:
         return re.sub(r'[\/*?"<>|:"\s\n]', '', title)
+
+    def __repr__(self) -> str:
+        return f'{self.status}'
