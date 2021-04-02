@@ -3,17 +3,9 @@ import re
 from bs4 import BeautifulSoup
 from board_viewer import PttBoardViewer
 
-base_url = 'https://www.ptt.cc/bbs/'
-board = 'Beauty'
-url = 'https://www.ptt.cc/bbs/Beauty/index.html'
-headers = {
-    'cookie': 'over18=1;'
-}
-ptt_board_viewer = PttBoardViewer(headers = headers)
-
 @pytest.fixture
 def instance():
-    return PttBoardViewer(headers = headers)
+    return PttBoardViewer(headers = { 'cookie': 'over18=1;' })
 
 def test_instance(instance):
     assert isinstance(instance, PttBoardViewer)
@@ -81,8 +73,8 @@ def test_nav_page(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index2.html')
     assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index1\.html$', instance.oldest_page())
     assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index[0-9]+\.html$', instance.prev_page())
-    assert re.match(r'https://www.ptt.cc/bbs/Beauty/index3.html', instance.next_page())
-    assert re.match(r'https://www.ptt.cc/bbs/Beauty/index.html', instance.newest_page())
+    assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index3\.html$', instance.next_page())
+    assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index\.html$', instance.newest_page())
 
 def test__is_disable(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index1.html')
