@@ -25,6 +25,9 @@ class PttBoardViewer(BoardViewer):
     def __init__(self, headers: dict):
         self.status = {
             'headers': headers,
+            'board': None,
+            'req_url': None,
+`           'res_code': None
         }
         self.soup = None
 
@@ -36,10 +39,12 @@ class PttBoardViewer(BoardViewer):
         req = requests.get(url, headers = headers)
         self.__set_status(url, req)
 
-        if not self.__sucess(req):
-            raise Exception(f'Request to {url} is failed, response status is {req.status_code}')
-        else:
+        if self.__sucess(req):
+            self.soup = BeautifulSoup(markup = req.text, features = 'html.parser')
             print(f'[INFO] {url} success')
+        else:
+            self.soup = None
+            raise Exception(f'Request to {url} is failed, response status is {req.status_code}')
     
     def __check_url(self, url: str) -> bool:
         if re.match(self.RE['url'], url):
@@ -51,13 +56,9 @@ class PttBoardViewer(BoardViewer):
         return req.status_code == 200
 
     def __set_status(self, url: str, req: requests) -> None:
-        self.status['board'] = url.split('bbs/')[1].split('/index')[0]
+        self.status['board'] = url.split('bbs/')[1].split('/')[0]
         self.status['req_url'] = url
         self.status['res_code'] = req.status_code
-        if self.__sucess(req):
-            self.soup = BeautifulSoup(markup = req.text, features = 'html.parser')
-        else:
-            self.soup = None
             
     def prev_page(self) -> t.Optional[str]:
         prevElement = self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[1]
