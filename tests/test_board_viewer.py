@@ -82,9 +82,9 @@ def test__is_disable(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
     assert instance.next_page() == None
 
-def test_get_posts(instance):
+def test_articles(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
-    post_metas = instance.get_posts()
-    assert isinstance(post_metas, list)
-    assert list(post_metas[0].keys()) == ['board', 'url', 'author', 'title', 'date', 'pushNumber']
+    article_metas = instance.articles()
+    assert isinstance(article_metas, list)
+    assert list(article_metas[0].keys()) == ['board', 'url', 'author', 'title', 'date', 'pushNumber']
 

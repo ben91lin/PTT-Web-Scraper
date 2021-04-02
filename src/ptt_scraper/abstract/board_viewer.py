@@ -28,7 +28,7 @@ class BoardViewer(abc.ABC):
         return NotImplemented
 
     @abc.abstractmethod
-    def get_posts() -> list:
-        # Return postMetas.
-        # Include post url, author, date, pushNum .etc
+    def articles() -> list:
+        # Return post metas.
+        # Include article url, author, date, pushNum .etc
         return NotImplemented

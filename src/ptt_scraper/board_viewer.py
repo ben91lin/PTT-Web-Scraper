@@ -9,8 +9,8 @@ class PttBoardViewer(BoardViewer):
     BASE_URL = 'https://www.ptt.cc'
     SELECTOR = {
         'NAV_BUTTONS': 'div#action-bar-container div.btn-group-paging > a',
-        'POSTS': 'div.r-list-container div.r-ent',
-        'POST_META': {
+        'ARTICLES': 'div.r-list-container div.r-ent',
+        'ARTICLE_META': {
             'DATE': 'div.meta > div.date',
             'AUTHOR': 'div.meta > div.author',
             'TITLE': 'div.title > a',
@@ -82,29 +82,29 @@ class PttBoardViewer(BoardViewer):
     def newest_page(self) -> str:
         return f'{self.BASE_URL}{self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[3]["href"]}'
 
-    def get_posts(self) -> list[dict]:
-        posts = self.soup.select(self.SELECTOR.get('POSTS'))
-        post_metas = []
+    def articles(self) -> list[dict]:
+        articles = self.soup.select(self.SELECTOR.get('ARTICLES'))
+        article_metas = []
 
-        for post in posts:
-            if (self.__is_deleted(post)):
+        for article in articles:
+            if (self.__is_deleted(article)):
                 continue
 
-            post_metas.append(
+            article_metas.append(
                 {
                     'board': self.status['board'],
-                    'url': post.select(self.SELECTOR.get("POST_META").get("DATE"))[0].text,
-                    'author': post.select(self.SELECTOR.get("POST_META").get("AUTHOR"))[0].text,
-                    'title': self.__regular_title(post.select(self.SELECTOR.get("POST_META").get("TITLE"))[0].text),
-                    'date': self.__numerate_push(post.select(self.SELECTOR.get("POST_META").get("PUSH_NUMBER"))[0].text),
-                    'pushNumber': f'{self.BASE_URL}{post.select(self.SELECTOR.get("POST_META").get("URL"))[0]["href"]}'
+                    'url': article.select(self.SELECTOR.get("ARTICLE_META").get("DATE"))[0].text,
+                    'author': article.select(self.SELECTOR.get("ARTICLE_META").get("AUTHOR"))[0].text,
+                    'title': self.__regular_title(article.select(self.SELECTOR.get("ARTICLE_META").get("TITLE"))[0].text),
+                    'date': self.__numerate_push(article.select(self.SELECTOR.get("ARTICLE_META").get("PUSH_NUMBER"))[0].text),
+                    'pushNumber': f'{self.BASE_URL}{article.select(self.SELECTOR.get("ARTICLE_META").get("URL"))[0]["href"]}'
                 }
                 )
 
-        return post_metas
+        return article_metas
 
-    def __is_deleted(self, postSoup) -> bool:
-        return postSoup.select('div.title > a') == []
+    def __is_deleted(self, soup) -> bool:
+        return soup.select('div.title > a') == []
 
     def __numerate_push(self, pushNumber: t.Union[str or int]) -> int:
         if pushNumber == '爆': return 100
