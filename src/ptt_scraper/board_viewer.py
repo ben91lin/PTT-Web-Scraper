@@ -84,14 +84,14 @@ class PttBoardViewer(BoardViewer):
         return f'{self.BASE_URL}{self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[3]["href"]}'
 
     def articles(self) -> list[dict]:
-        articles = self.soup.select(self.SELECTOR.get('ARTICLES'))
-        article_metas = []
+        selections = self.soup.select(self.SELECTOR.get('ARTICLES'))
+        outputs = []
 
-        for article in articles:
+        for article in selections:
             if (self.__is_deleted(article)):
                 continue
 
-            article_metas.append(
+            outputs.append(
                 {
                     'board': self.status['board'],
                     'url': article.select(self.SELECTOR.get("ARTICLE_META").get("DATE"))[0].text,
@@ -102,7 +102,7 @@ class PttBoardViewer(BoardViewer):
                 }
                 )
 
-        return article_metas
+        return outputs
 
     def __is_deleted(self, soup) -> bool:
         return soup.select('div.title > a') == []
