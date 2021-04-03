@@ -19,7 +19,7 @@ class PttBoardViewer(BoardViewer):
         }
     }
     RE = {
-        'url': re.compile(r'^https:\/\/(www\.)?ptt\.cc\/bbs\/[a-zA-Z0-9]+\/index[0-9]*\.html$')
+        'url': re.compile(r'^https://(www\.)?ptt\.cc/bbs/[a-zA-Z0-9]+/index[0-9]*\.html$')
     }
 
     def __init__(self, headers: dict):
