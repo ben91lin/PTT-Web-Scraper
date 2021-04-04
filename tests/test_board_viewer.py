@@ -13,52 +13,6 @@ def test_instance(instance):
 @pytest.mark.parametrize(
     "test_case, expected",
     [
-        ('https://www.ptt.cc/bbs/Beauty/index.html', True),
-        ('https://ptt.cc/bbs/Beauty/index.html', True),
-        ('https://ptt.cc/bbs/Beauty/index132.html', True),
-        ('https://www.ptt.cc/bbs/Beauty/index.htmlasd', False)
-    ]
-)
-def test__check_url(instance, test_case, expected):
-    assert instance._PttBoardViewer__check_url(test_case) == expected
-
-def test__set_status(instance):
-    class Test:
-        status_code = 200
-        text = ''
-    req = Test()
-    instance._PttBoardViewer__set_status(url = 'https://ptt.cc/bbs/Beauty/index132.html', req = req)
-    assert instance.status['board'] == 'Beauty'
-    assert instance.status['req_url'] == 'https://ptt.cc/bbs/Beauty/index132.html'
-    assert instance.status['res_code'] == 200
-    assert isinstance(instance.soup, BeautifulSoup)
-
-@pytest.mark.parametrize(
-    "test_case, expected",
-    [
-        ('https://www.ptt.cc/bbs/Beauty/index.html', None),
-    ]
-)
-def test_get(instance, test_case, expected):
-    assert instance.get(test_case) == expected
-    assert instance.status['req_url'] == test_case
-    assert instance.status['res_code'] == 200
-    assert isinstance(instance.soup, BeautifulSoup)
-
-@pytest.mark.parametrize(
-    "test_case",
-    [
-        'https://www.ptt.cc/bbs/Beauty/index.htmlasd',
-        'https://www.ptt.cc/bbs/Beauty/index12312.html'
-    ]
-)
-def test_get_exception(instance, test_case):
-    with pytest.raises(Exception):
-        instance.get(test_case)
-
-@pytest.mark.parametrize(
-    "test_case, expected",
-    [
         ('爆', 100),
         ('', 0),
         ('XX', -100),
@@ -86,5 +40,5 @@ def test_articles(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
     article_metas = instance.articles()
     assert isinstance(article_metas, list)
-    assert list(article_metas[0].keys()) == ['board', 'url', 'author', 'title', 'date', 'pushNumber']
+    assert list(article_metas[0].keys()) == ['url', 'author', 'title', 'date', 'pushNumber']
 

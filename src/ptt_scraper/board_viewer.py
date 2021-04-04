@@ -4,8 +4,9 @@ import requests
 import typing as t
 from bs4 import BeautifulSoup
 from abstract.board_viewer import BoardViewer
+from connection import Connection
 
-class PttBoardViewer(BoardViewer):
+class PttBoardViewer(Connection, BoardViewer):
     BASE_URL = 'https://www.ptt.cc'
     SELECTOR = {
         'NAV_BUTTONS': 'div#action-bar-container div.btn-group-paging > a',
@@ -23,52 +24,17 @@ class PttBoardViewer(BoardViewer):
     }
 
     def __init__(self, headers: dict):
-        self.status = {
-            'headers': headers,
-            'board': None,
-            'req_url': None,
-`           'res_code': None
-        }
-        self.soup = None
-
-    def get(self, url: str, headers: t.Optional[dict] = None) -> t.Optional[Exception]:
-        if not self.__check_url(url):
-            raise Exception(f'Request url: {url} is not a PTT board link.')
-        
-        headers = headers or self.status.get('headers')
-        req = requests.get(url, headers = headers)
-        self.__set_status(url, req)
-
-        if self.__sucess(req):
-            self.soup = BeautifulSoup(markup = req.text, features = 'html.parser')
-            print(f'[INFO] {url} success')
-        else:
-            self.soup = None
-            raise Exception(f'Request to {url} is failed, response status is {req.status_code}')
-    
-    def __check_url(self, url: str) -> bool:
-        if re.match(self.RE['url'], url):
-            return True
-        else:
-            return False
-
-    def __sucess(self, req: requests) -> bool:
-        return req.status_code == 200
-
-    def __set_status(self, url: str, req: requests) -> None:
-        self.status['board'] = url.split('bbs/')[1].split('/')[0]
-        self.status['req_url'] = url
-        self.status['res_code'] = req.status_code
+        super().__init__(headers)
             
     def prev_page(self) -> t.Optional[str]:
-        prevElement = self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[1]
+        prevElement = self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[1]
         if self.__is_disable(prevElement):
             return None
         else:
             return f'{self.BASE_URL}{prevElement["href"]}'
 
     def next_page(self) -> t.Optional[str]:
-        nextElement = self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[2]
+        nextElement = self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[2]
         if self.__is_disable(nextElement):
             return None
         else:
@@ -78,13 +44,13 @@ class PttBoardViewer(BoardViewer):
         return 'disabled' in soup['class']
 
     def oldest_page(self) -> str:
-        return f'{self.BASE_URL}{self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[0]["href"]}'
+        return f'{self.BASE_URL}{self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[0]["href"]}'
 
     def newest_page(self) -> str:
-        return f'{self.BASE_URL}{self.soup.select(self.SELECTOR.get("NAV_BUTTONS"))[3]["href"]}'
+        return f'{self.BASE_URL}{self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[3]["href"]}'
 
     def articles(self) -> list[dict]:
-        selections = self.soup.select(self.SELECTOR.get('ARTICLES'))
+        selections = self._soup.select(self.SELECTOR.get('ARTICLES'))
         outputs = []
 
         for article in selections:
@@ -93,7 +59,6 @@ class PttBoardViewer(BoardViewer):
 
             outputs.append(
                 {
-                    'board': self.status['board'],
                     'url': article.select(self.SELECTOR.get("ARTICLE_META").get("DATE"))[0].text,
                     'author': article.select(self.SELECTOR.get("ARTICLE_META").get("AUTHOR"))[0].text,
                     'title': self.__regular_title(article.select(self.SELECTOR.get("ARTICLE_META").get("TITLE"))[0].text),
@@ -116,6 +81,3 @@ class PttBoardViewer(BoardViewer):
 
     def __regular_title(self, title: str) -> str:
         return re.sub(r'[\/*?"<>|:"\s\n]', '', title)
-
-    def __repr__(self) -> str:
-        return f'{self.status}'
