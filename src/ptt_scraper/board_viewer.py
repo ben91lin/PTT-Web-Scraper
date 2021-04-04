@@ -19,9 +19,6 @@ class PttBoardViewer(Connection, BoardViewer):
             'URL': 'div.title > a'
         }
     }
-    RE = {
-        'url': re.compile(r'^https://(www\.)?ptt\.cc/bbs/[a-zA-Z0-9]+/index[0-9]*\.html$')
-    }
 
     def __init__(self, headers: dict):
         super().__init__(headers)
