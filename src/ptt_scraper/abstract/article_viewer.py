@@ -23,7 +23,7 @@ class ArticleViewer(abc.ABC):
         return NotImplemented
 
     @abc.abstractmethod
-    def comments() -> list:
+    def comments() -> list[dict]:
         return NotImplemented
 
     @abc.abstractmethod
