@@ -18,6 +18,7 @@ def test_instance(instance):
 def test_meta(article1):
     assert article1.meta() == {
         'datetime': 'Mon Jun 20 13:04:48 2005',
+        'timestamp': 1119243888.0,
         'author_ip': '220.137.87.186',
         'author_id': 'MCI',
         'author_nickname': '步步步步步步步步',
@@ -63,3 +64,14 @@ def test_content(article1):
 <span class="f2">※ 發信站: 批踢踢實業坊(ptt.cc) 
 </span>◆ From: 220.137.87.186
 </div>'''
+
+def test_comments(article1):
+    assert isinstance(article1.comments(), list)
+    assert isinstance(article1.comments()[0], dict)
+    assert article1.comments()[0] == {
+        'comment_datetime': '06/20',
+        'tag': '推',
+        'commentor_id': 'saitoh',
+        'commentor_ip': '220.130.172.76',
+        'comment': '高上尉是高滑助嗎?'
+    }

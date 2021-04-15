@@ -4,6 +4,7 @@ import re
 import requests
 import typing as t
 from bs4 import BeautifulSoup
+from datetime import datetime
 from abstract.article_viewer import ArticleViewer
 from connection import Connection
 
@@ -23,17 +24,17 @@ class PTTArticleViewer(Connection, ArticleViewer):
         # The richcontent is iframe preview for imgur.com
         'COMMENT_RICHCONTENTS': 'span.f2 ~ div.push ~ .richcontent',
         'COMMENT_META': {
-            'TAG': 'push-tag',
-            'COMMENTOR': 'push-userid',
-            'COMMENT': 'push-content',
-            'IPDATETIME': 'push-ipdatetime'
+            'TAG': '.push-tag',
+            'COMMENTOR': '.push-userid',
+            'COMMENT': '.push-content',
+            'IPDATETIME': '.push-ipdatetime'
         }
     }
     RE = {
-        'ip': re.compile(r'[0-9]{1, 3}\.[0-9]{1, 3}\.[0-9]{1, 3}\.[0-9]{1, 3}'),
+        'ip': re.compile(r'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'),
         # In PTT, they have two type of ip presentation, 來自: xxx.xxx.xxx.xxx or FROM: xxx.xxx.xxx.xxx
         'author_ip': re.compile(r'((?<=(From\:\s))|(?<=(來自\:\s)))[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'),
-        'datetime': re.compile(r'[0-9]{2}\/[0-9]{2}\s[0-9]{2}\:[0-9]{2}')
+        'datetime': re.compile(r'[0-9]{2}\/[0-9]{2}(\s[0-9]{2}\:[0-9]{2})?')
     }
 
     def __init__(self, headers: dict):
@@ -42,6 +43,7 @@ class PTTArticleViewer(Connection, ArticleViewer):
     def meta(self) -> str:
         return {
             'datetime': self.datetime(),
+            'timestamp': self.timestamp(),
             'author_ip': self.author_ip(),
             'author_id': self.author_id(),
             'author_nickname': self.author_nickname(),
@@ -50,6 +52,10 @@ class PTTArticleViewer(Connection, ArticleViewer):
 
     def datetime(self) -> str:
         return self._soup.select(self.SELECTOR['ARTICLE_META']['DATETIME'])[0].text
+
+    def timestamp(self) -> float:
+        dt = datetime.strptime(self.datetime(), "%a %b %d %H:%M:%S %Y")
+        return datetime.timestamp(dt)
 
     def author_ip(self) -> str:
         search = re.search(self.RE['author_ip'], self._soup.text)
@@ -97,32 +103,55 @@ class PTTArticleViewer(Connection, ArticleViewer):
         for comment in selections:
             outputs.append(
                 {
-                    'datetime': self.__datetime(),
-                    'tag': comment.select(self.SELECTOR['COMMENT_META']['TAG']),
-                    'commentor_id': comment.select(self.SELECTOR['COMMENT_META']['COMMENTOR']),
-                    'commentor_ip': self.__commentor_ip(),
-                    'comment': comment.select(self.SELECTOR['COMMENT_META']['COMMENT']),
+                    'comment_datetime': self.__comment_datetime(
+                        comment.select(
+                            self.SELECTOR['COMMENT_META']['IPDATETIME']
+                            )[0].text
+                        ),
+                    'tag': comment.select(
+                        self.SELECTOR['COMMENT_META']['TAG']
+                        )[0].text[:1],
+                    'commentor_id': comment.select(
+                        self.SELECTOR['COMMENT_META']['COMMENTOR']
+                        )[0].text,
+                    'commentor_ip': self.__commentor_ip(
+                        comment.select(
+                            self.SELECTOR['COMMENT_META']['IPDATETIME']
+                            )[0].text
+                        ),
+                    'comment': comment.select(
+                        self.SELECTOR['COMMENT_META']['COMMENT']
+                        )[0].text[1:],
                 }
             )
 
         return outputs
 
-    def __commentor_ip(self, selection):
+    def __comment_datetime(self, text):
+        search = re.search(
+            self.RE['datetime'],
+            text
+            )
+        return search.group(0) if search else ''
+
+    # def __comment_timestamp(self) -> float:
+    #     dt = datetime.strptime(self.datetime(), "%a %b %d %H:%M:%S %Y")
+    #     return datetime.timestamp(dt)
+
+    def __commentor_ip(self, text):
         '''
         BBS PTT has two kind of board, one display ip address, another none.
         '''
         search = re.search(
             self.RE['ip'],
-            selection.select(self.SELECTOR['COMMENT_META']['IPDATETIME'])
+            text
             )
         return search.group(0) if search else ''
 
 
-    def __datetime(self, selection):
-        return re.match(
-            self.RE['datetime'],
-            selection.select(self.SELECTOR['COMMENT_META']['IPDATETIME'])
-            ).string
+    
+    
+
 
     def medias(self):
         pass
