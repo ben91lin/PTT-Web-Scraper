@@ -19,8 +19,10 @@ class PTTArticleViewer(Connection, ArticleViewer):
             'TITLE': 'div.article-metaline:nth-of-type(3) span.article-meta-value',
             'DATETIME': 'div.article-metaline:nth-of-type(4) span.article-meta-value',
         },
-        'CONTENT': 'div#main-content',
+        'ARTICLE_CONTENT': 'div#main-content',
+        'ARTICLE_HREFS': 'div#main-content > a[href]',
         'COMMENTS': 'span.f2 ~ div.push',
+        'COMMENT_HREFS': 'div.push span.f3.push-content a[href]',
         # The richcontent is iframe preview for imgur.com
         'COMMENT_RICHCONTENTS': 'span.f2 ~ div.push ~ .richcontent',
         'COMMENT_META': {
@@ -75,7 +77,7 @@ class PTTArticleViewer(Connection, ArticleViewer):
 
     def content(self) -> str:
         soup = BeautifulSoup(features = 'html.parser')
-        soup.append(copy.copy(self._soup.select(self.SELECTOR['CONTENT'])[0]))
+        soup.append(copy.copy(self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]))
         self.__decompose_comment_richcontents(soup)
         self.__decompose_comments(soup)
         self.__decompose_article_meta(soup)
@@ -134,6 +136,8 @@ class PTTArticleViewer(Connection, ArticleViewer):
             )
         return search.group(0) if search else ''
 
+    # PTT 推文有2種日期表示方式，date、datetime，
+    # 以及難以估計推文年份，暫不做此功能。
     # def __comment_timestamp(self) -> float:
     #     dt = datetime.strptime(self.datetime(), "%a %b %d %H:%M:%S %Y")
     #     return datetime.timestamp(dt)
@@ -148,10 +152,21 @@ class PTTArticleViewer(Connection, ArticleViewer):
             )
         return search.group(0) if search else ''
 
-
-    
-    
-
-
-    def medias(self):
-        pass
+    def hrefs(self):
+        output = {}
+        soup = BeautifulSoup(features = 'html.parser')
+        soup.append(copy.copy(self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]))
+        comment_hrefs = soup.select(self.SELECTOR['COMMENT_HREFS'])
+        comment_hrefs = [url['href'] for url in comment_hrefs]
+        self.__decompose_comments(soup)
+        article_hrefs = soup.select(self.SELECTOR['ARTICLE_HREFS'])
+        article_hrefs = [url['href'] for url in article_hrefs]
+        output.setdefault(
+            'comment_hrefs',
+            comment_hrefs
+        )
+        output.setdefault(
+            'article_hrefs',
+            article_hrefs
+        )
+        return output

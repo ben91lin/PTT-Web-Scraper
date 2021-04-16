@@ -27,5 +27,5 @@ class ArticleViewer(abc.ABC):
         return NotImplemented
 
     @abc.abstractmethod
-    def medias() -> list:
+    def hrefs() -> list:
         return NotImplemented
