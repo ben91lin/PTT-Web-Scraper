@@ -2,15 +2,17 @@
 
 Completely PTT Board Scraper.
 
+Some datastructure in there.
+* simple article meta.
     {
         'url': ,
-        'title': ,
-        'author_id': ,
         'date': ,
+        'author_id': ,
+        'title': ,
         'push_number': ,
         'scrape_timestamp':
     }
-
+* detailed article meta.
     {
         'url': ,
         'datetime': ,
@@ -20,5 +22,17 @@ Completely PTT Board Scraper.
         'author_nickname': ,
         'title': ,
         'content': ,
-        'hrefs':
+        'hrefs': ,
+        'scrape_timestamp':
+    }
+* comment meta.
+Depend PTT board, some comment doesn't have ip/time.
+    {
+        'url': ,
+        'datetime': ,
+        'commentor_id': ,
+        'commentor_ip': ,
+        'tag': ,
+        'content': ,
+        'scrape_timestamp':
     }
