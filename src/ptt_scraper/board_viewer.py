@@ -30,14 +30,14 @@ class PttBoardViewer(Connection, BoardViewer):
         if not self.__has_link(soup):
             return None
         else:
-            return f'{self.BASE_URL}{soup["href"]}'
+            return urljoin(self.BASE_URL, soup["href"])
 
     def next_page(self) -> t.Optional[str]:
         soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[2]
         if not self.__has_link(soup):
             return None
         else:
-            return f'{self.BASE_URL}{soup["href"]}'
+            return urljoin(self.BASE_URL, soup["href"])
 
     def has_prev_page(self) -> bool:
         soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[1]
@@ -52,11 +52,11 @@ class PttBoardViewer(Connection, BoardViewer):
 
     def oldest_page(self) -> None:
         soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[0]
-        return f'{self.BASE_URL}{soup["href"]}'
+        return urljoin(self.BASE_URL, soup["href"])
 
     def newest_page(self) -> None:
         soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[3]
-        return f'{self.BASE_URL}{soup["href"]}'
+        return urljoin(self.BASE_URL, soup["href"])
 
     def articles(self) -> list[dict]:
         soups = self._soup.select(self.SELECTOR['ARTICLES'])
@@ -80,7 +80,7 @@ class PttBoardViewer(Connection, BoardViewer):
                     'author_id': article.select(
                         self.SELECTOR["ARTICLE_META"]["AUTHOR"]
                         )[0].text,
-                    'title': self.__regular_title(
+                    'title': re.escape(
                         article.select(
                             self.SELECTOR["ARTICLE_META"]["TITLE"]
                         )[0].text
@@ -105,6 +105,3 @@ class PttBoardViewer(Connection, BoardViewer):
         if push_number == 'XX': return -100
         if push_number[0] == 'X': return -(int(push_number[1]) * 10)
         return int(push_number)
-
-    def __regular_title(self, title: str) -> str:
-        return re.sub(r'[\/*?"<>|:"\s\n]', '', title)

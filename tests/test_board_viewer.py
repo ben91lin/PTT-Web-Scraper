@@ -30,7 +30,7 @@ def test_nav_page(instance):
     assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index3\.html$', instance.next_page())
     assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index\.html$', instance.newest_page())
 
-def test__has_link(instance):
+def test__not_has_link(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index1.html')
     assert instance.prev_page() == None
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
