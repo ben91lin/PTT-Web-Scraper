@@ -62,7 +62,8 @@ class PttBoardViewer(Connection, BoardViewer):
         soups = self._soup.select(self.SELECTOR['ARTICLES'])
         outputs = []
 
-        for article in soups:
+        while soups:
+            article = soups.pop()
             if self.__is_deleted(article):
                 continue
 
