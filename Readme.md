@@ -8,9 +8,9 @@ Some datastructure in there.
         {
             'url': ,
             'board': ,
-            'scrape_datetime':
+            'download_datetime':
         }
-
+        
 * Simple article meta.
 
         {
@@ -20,8 +20,9 @@ Some datastructure in there.
             'title': ,
             'push_number': ,
             'board': ,
-            'scrape_datetime':
+            'download_datetime':
         }
+
 * Detailed article meta.
 
         {
@@ -35,9 +36,10 @@ Some datastructure in there.
             'content': ,
             'hrefs': ,
             'board': ,
-            'scrape_datetime':
+            'download_datetime':
         }
-* Comment meta.(Depend PTT board, some comment doesn't have ip/time.)
+
+* Comment meta.(Some comment doesn't have ip or time, depends on PTT board, )
 
         {
             'url': ,
@@ -46,5 +48,5 @@ Some datastructure in there.
             'commentor_ip': ,
             'tag': ,
             'content': ,
-            'scrape_datetime':
+            'download_datetime':
         }
