@@ -63,7 +63,7 @@ class PttBoardViewer(Connection, BoardViewer):
         outputs = []
 
         for article in soups:
-            if (self.__is_deleted(article)):
+            if self.__is_deleted(article):
                 continue
 
             outputs.append(
@@ -99,7 +99,7 @@ class PttBoardViewer(Connection, BoardViewer):
     def __is_deleted(self, soup) -> bool:
         return soup.select('div.title > a') == []
 
-    def __numerate_push(self, push_number: t.Union[str or int]) -> int:
+    def __numerate_push(self, push_number: str) -> int:
         if push_number == '爆': return 100
         if push_number == '': return 0
         if push_number == 'XX': return -100
