@@ -30,7 +30,7 @@ def test_nav_page(instance):
     assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index3\.html$', instance.next_page())
     assert re.match(r'^https:\/\/www\.ptt\.cc\/bbs\/Beauty\/index\.html$', instance.newest_page())
 
-def test__is_disable(instance):
+def test__has_link(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index1.html')
     assert instance.prev_page() == None
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
@@ -40,5 +40,5 @@ def test_articles(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
     article_metas = instance.articles()
     assert isinstance(article_metas, list)
-    assert list(article_metas[0].keys()) == ['url', 'author', 'title', 'date', 'pushNumber']
+    assert list(article_metas[0].keys()) == ['url', 'date', 'author_id', 'title', 'push_number', 'board']
 

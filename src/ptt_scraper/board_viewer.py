@@ -3,6 +3,8 @@ import re
 import requests
 import typing as t
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+
 from abstract.board_viewer import BoardViewer
 from connection import Connection
 
@@ -24,43 +26,71 @@ class PttBoardViewer(Connection, BoardViewer):
         super().__init__(headers)
             
     def prev_page(self) -> t.Optional[str]:
-        prevElement = self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[1]
-        if self.__is_disable(prevElement):
+        soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[1]
+        if not self.__has_link(soup):
             return None
         else:
-            return f'{self.BASE_URL}{prevElement["href"]}'
+            return f'{self.BASE_URL}{soup["href"]}'
 
     def next_page(self) -> t.Optional[str]:
-        nextElement = self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[2]
-        if self.__is_disable(nextElement):
+        soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[2]
+        if not self.__has_link(soup):
             return None
         else:
-            return f'{self.BASE_URL}{nextElement["href"]}'
+            return f'{self.BASE_URL}{soup["href"]}'
 
-    def __is_disable(self, soup) -> bool:
-        return 'disabled' in soup['class']
+    def has_prev_page(self) -> bool:
+        soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[1]
+        return self.__has_link(soup)
 
-    def oldest_page(self) -> str:
-        return f'{self.BASE_URL}{self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[0]["href"]}'
+    def has_next_page(self) -> bool:
+        soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[2]
+        return self.__has_link(soup)
 
-    def newest_page(self) -> str:
-        return f'{self.BASE_URL}{self._soup.select(self.SELECTOR.get("NAV_BUTTONS"))[3]["href"]}'
+    def __has_link(self, soup) -> bool:
+        return 'disabled' not in soup['class']
+
+    def oldest_page(self) -> None:
+        soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[0]
+        return f'{self.BASE_URL}{soup["href"]}'
+
+    def newest_page(self) -> None:
+        soup = self._soup.select(self.SELECTOR["NAV_BUTTONS"])[3]
+        return f'{self.BASE_URL}{soup["href"]}'
 
     def articles(self) -> list[dict]:
-        selections = self._soup.select(self.SELECTOR.get('ARTICLES'))
+        soups = self._soup.select(self.SELECTOR['ARTICLES'])
         outputs = []
 
-        for article in selections:
+        for article in soups:
             if (self.__is_deleted(article)):
                 continue
 
             outputs.append(
                 {
-                    'url': article.select(self.SELECTOR.get("ARTICLE_META").get("DATE"))[0].text,
-                    'author': article.select(self.SELECTOR.get("ARTICLE_META").get("AUTHOR"))[0].text,
-                    'title': self.__regular_title(article.select(self.SELECTOR.get("ARTICLE_META").get("TITLE"))[0].text),
-                    'date': self.__numerate_push(article.select(self.SELECTOR.get("ARTICLE_META").get("PUSH_NUMBER"))[0].text),
-                    'pushNumber': f'{self.BASE_URL}{article.select(self.SELECTOR.get("ARTICLE_META").get("URL"))[0]["href"]}'
+                    'url': urljoin(
+                        self.BASE_URL,
+                        article.select(
+                            self.SELECTOR["ARTICLE_META"]["URL"]
+                            )[0]["href"]
+                    ),
+                    'date': article.select(
+                        self.SELECTOR["ARTICLE_META"]["DATE"]
+                        )[0].text,
+                    'author_id': article.select(
+                        self.SELECTOR["ARTICLE_META"]["AUTHOR"]
+                        )[0].text,
+                    'title': self.__regular_title(
+                        article.select(
+                            self.SELECTOR["ARTICLE_META"]["TITLE"]
+                        )[0].text
+                        ),
+                    'push_number': self.__numerate_push(
+                        article.select(
+                            self.SELECTOR["ARTICLE_META"]["PUSH_NUMBER"]
+                        )[0].text
+                        ),
+                    'board': self._status['looking_for'][0]
                 }
                 )
 
@@ -69,12 +99,12 @@ class PttBoardViewer(Connection, BoardViewer):
     def __is_deleted(self, soup) -> bool:
         return soup.select('div.title > a') == []
 
-    def __numerate_push(self, pushNumber: t.Union[str or int]) -> int:
-        if pushNumber == '爆': return 100
-        if pushNumber == '': return 0
-        if pushNumber == 'XX': return -100
-        if pushNumber[0] == 'X': return -(int(pushNumber[1]) * 10)
-        return int(pushNumber)
+    def __numerate_push(self, push_number: t.Union[str or int]) -> int:
+        if push_number == '爆': return 100
+        if push_number == '': return 0
+        if push_number == 'XX': return -100
+        if push_number[0] == 'X': return -(int(push_number[1]) * 10)
+        return int(push_number)
 
     def __regular_title(self, title: str) -> str:
         return re.sub(r'[\/*?"<>|:"\s\n]', '', title)
