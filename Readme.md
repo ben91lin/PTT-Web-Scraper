@@ -10,7 +10,7 @@ Completely PTT Board Scraper.
     ptt.board('board_name', start_page, end_page)
     ptt.simple_articles
     # filter data
-    ptt.simple_articles.pipline(
+    ptt.simple_articles.pipeline(
         { '$operator': (key, value) },
         { '$in': ('title', '爆掛') }
     )
