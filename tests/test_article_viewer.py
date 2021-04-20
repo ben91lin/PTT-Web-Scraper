@@ -1,14 +1,14 @@
 import pytest
 import re
 from bs4 import BeautifulSoup
-from article_viewer import PTTArticleViewer
+from article_viewer import PttArticleViewer
 
 @pytest.fixture
 def instance():
-    return PTTArticleViewer(headers = { 'cookie': 'over18=1;' })
+    return PttArticleViewer(headers = { 'cookie': 'over18=1;' })
 
 def test_instance(instance):
-    assert isinstance(instance, PTTArticleViewer)
+    assert isinstance(instance, PttArticleViewer)
 
 def test_meta(instance):
     instance.get('https://www.ptt.cc/bbs/Gossiping/M.1119243418.A.790.html')
@@ -74,6 +74,7 @@ def test_comments(instance):
         'comment': '高上尉是高滑助嗎?'
     }
 
+#TODO try other test to respond web updated.
 def test_hrefs(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/M.1618533391.A.AAA.html')
     assert instance.hrefs() == {

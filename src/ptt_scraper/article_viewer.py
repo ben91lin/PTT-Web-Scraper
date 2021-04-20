@@ -8,7 +8,7 @@ from datetime import datetime
 from abstract.article_viewer import ArticleViewer
 from connection import Connection
 
-class PTTArticleViewer(Connection, ArticleViewer):
+class PttArticleViewer(Connection, ArticleViewer):
     BASE_URL = 'https://www.ptt.cc'
     SELECTOR = {
         'ARTICLE_META': {
