@@ -2,16 +2,22 @@
 
 Completely PTT Board Scraper.
 
-Some datastructure in there.
-* Board meta.
+## Usage
 
-        {
-            'url': ,
-            'board': ,
-            'download_datetime':
-        }
+    from ptt_scrpay import PTT
+
+    ptt = PTT()
+    ptt.board('board_name', start_page, end_page)
+    ptt.simple_articles
+    # filter data
+    ptt.simple_articles.pipline(
+        { '$operator': (key, value) },
+        { '$in': ('title', '爆掛') }
+    )
+
+Some datastructure in there.
         
-* Simple article meta.
+* Simple articles.
 
         {
             'url': ,
@@ -23,7 +29,7 @@ Some datastructure in there.
             'download_datetime':
         }
 
-* Detailed article meta.
+* Detailed articles.
 
         {
             'url': ,
@@ -39,7 +45,7 @@ Some datastructure in there.
             'download_datetime':
         }
 
-* Comment meta.(Some comment doesn't have ip or time, depends on PTT board, )
+* Comments.(Some comment doesn't have ip or time, depends on PTT board.)
 
         {
             'url': ,
