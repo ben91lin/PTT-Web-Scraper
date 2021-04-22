@@ -28,7 +28,8 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
 
 ## Method & Output.
 
-* board(browse ptt board and get 'article_list'.)
+* board
+    Browse ptt board and get 'article_list'.
 
         {
             'url': ,
@@ -70,7 +71,8 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'title':
         }
 
-* comment(Comment only, but some comment doesn't have ip or time, depends on PTT board.)
+* comment
+    Comment only, but some comment doesn't have ip or time, depends on  board.
 
         {
             'url': ,
