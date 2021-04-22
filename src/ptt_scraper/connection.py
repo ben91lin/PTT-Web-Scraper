@@ -28,6 +28,7 @@ class Connection():
         if self._sucess(request):
             self._soup = BeautifulSoup(markup = request.text, features = 'html.parser')
             print(f'[INFO] GET {url} success')
+            return self
         else:
             self.soup = None
             raise Exception(f'Request to {url} is failed, response status is {req.status_code}')
