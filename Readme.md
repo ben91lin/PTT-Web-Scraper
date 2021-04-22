@@ -29,6 +29,7 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
 ## Method & Output.
 
 * board
+    
     Browse ptt board and get 'article_list'.
 
         {
@@ -72,6 +73,7 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
         }
 
 * comment
+    
     Comment only, but some comment doesn't have ip or time, depends on  board.
 
         {
