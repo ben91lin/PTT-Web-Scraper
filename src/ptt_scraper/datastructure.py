@@ -6,9 +6,9 @@ class Data:
         Use list comprehension instead of filter(), it's faster and more clearly.
     '''
 
-    def __init__(self, name: str = '', data: list = []):
+    def __init__(self, name: str = '', data: list = None):
         self._name = name
-        self._data = data
+        self._data = [] if data is None else data
         self._OPERATOR = {
             '$all': self.all,
             '$in': self.contain,
@@ -26,6 +26,7 @@ class Data:
             '$less_and_equal': self.less_and_equal,
             '$<=': self.less_and_equal,
             }
+        
 
     @property
     def data(self):
@@ -91,4 +92,3 @@ class Data:
             return f'{self._name}: It\'s empty.'
         else:
             return f'{self._name}: lens({len(self._data)}), {self._data[0].keys()}, size({sys.getsizeof(self._data)}bytes).'
-            
