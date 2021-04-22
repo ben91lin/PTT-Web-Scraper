@@ -65,8 +65,8 @@ class PttArticleViewer(Connection, ArticleViewer):
             'title': self.title(),
             'content': self.content(),
             'comments': self.comments(),
-            'hrefs_in_article': self.hrefs_in_article(),
-            'herfs_in_comments': herfs_in_comments(),
+            'href_in_article': self.href_in_article(),
+            'href_in_comment': self.href_in_comment(),
             'board': self._status['looking_for'][0],
         }
 
@@ -176,14 +176,20 @@ class PttArticleViewer(Connection, ArticleViewer):
             )
         return search.group(0) if search else ''
 
-    def herf_in_article(self):
+    def hrefs(self):
+        return {
+            'href_in_article': self.href_in_article(),
+            'href_in_comment': self.href_in_comment()
+        }
+
+    def href_in_article(self):
         soup = self.__copy_soup(
             self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
         )
         self.__decompose_comments(soup)
         return [url['href'] for url in soup.select(self.SELECTOR['ARTICLE_HREFS'])]
 
-    def herf_in_comment(self):
+    def href_in_comment(self):
         soup = self.__copy_soup(
             self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
         )
