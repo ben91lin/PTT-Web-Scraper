@@ -21,31 +21,29 @@ class PTT:
         ):
         self.headers = headers
         self.sleep = sleep
-        self.simple_articles = Data('Simple article meta')
-        self.detailed_articles = Data('Detailed article meta')
-        self.comments = Data('Comments meta')
+        self.article_list = None
         
     def board(
         self,
         board_name: str,
-        start: int,
-        end: int = None
+        start_page: int,
+        end_page: int = None
         ):
-        end = start if end is None else end
-        viewer = PttBoardViewer(self.headers)
-        current = 0
-        outputs = []
+        if end_page is None:
+            end_page = start_page
+        viewer = PttBoardViewer(self.headers).get(self.__board_url(board_name))
+        outputs = Data('Article list')
 
-        viewer.get(self.__board_url(board_name))
-        while end >= current and viewer.has_prev_page():
-            if start <= current: 
-                outputs += viewer.articles()
+        current_page = 0
+        while end_page >= current_page and viewer.has_prev_page():
+            if start_page <= current_page: 
+                outputs.data += viewer.articles()
             viewer.get(viewer.prev_page())
-            current += 1
+            current_page += 1
             sleep(self.sleep)
 
-        self.simple_articles.data = outputs
-        return self.simple_articles
+        self.article_list = outputs
+        return self.article_list
 
     def __board_url(self, board_name):
         return urljoin(
@@ -59,6 +57,74 @@ class PTT:
             )
             )
 
-    def articles(self, comments: bool = True):
+    def meta(self):
         viewer = PttArticleViewer(self.headers)
-        outputs = []
+        urls = [data['url'] for data in self.article_list.data]
+        outputs = Data('Metas')
+
+        for url in urls:
+            outputs.data.append(
+                viewer.get(url).meta()
+            )
+            sleep(self.sleep)
+
+        return outputs
+
+    def article(self):
+        viewer = PttArticleViewer(self.headers)
+        urls = [data['url'] for data in self.article_list.data]
+        outputs = Data('Articles')
+
+        for url in urls:
+            outputs.data.append(
+                viewer.get(url).article()
+            )
+            sleep(self.sleep)
+
+        return outputs
+
+    def comment(self):
+        viewer = PttArticleViewer(self.headers)
+        outputs = Data('Comments')
+        urls = [data['url'] for data in self.article_list.data]
+
+        for url in urls:
+            comments = viewer.get(url).comments()
+            for c in comments:
+                c['url'] = url
+            outputs.data += comments
+            sleep(self.sleep)
+
+        return outputs
+
+    def href_in_article(self):
+        viewer = PttArticleViewer(self.headers)
+        outputs = Data('Href in Article')
+        urls = [data['url'] for data in self.article_list.data]
+
+        for url in urls:
+            outputs.data.append(
+                {
+                    'url': url,
+                    'href_in_article': viewer.get(url).href_in_article()
+                }
+            )
+            sleep(self.sleep)
+
+        return outputs
+
+    def href_in_comment(self):
+        viewer = PttArticleViewer(self.headers)
+        outputs = Data('Href in Comment')
+        urls = [data['url'] for data in self.article_list.data]
+
+        for url in urls:
+            outputs.data.append(
+                {
+                    'url': url,
+                    'href_in_comment': viewer.get(url).href_in_comment()
+                }
+            )
+            sleep(self.sleep)
+
+        return outputs
