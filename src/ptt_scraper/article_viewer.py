@@ -42,14 +42,32 @@ class PttArticleViewer(Connection, ArticleViewer):
     def __init__(self, headers: dict):
         super().__init__(headers)
 
-    def meta(self) -> str:
+    def meta(self) -> dict:
         return {
+            'url': self._status['request_url'],
             'datetime': self.datetime(),
             'timestamp': self.timestamp(),
             'author_ip': self.author_ip(),
             'author_id': self.author_id(),
             'author_nickname': self.author_nickname(),
             'title': self.title(),
+            'board': self._status['looking_for'][0],
+        }
+
+    def article(self) -> dict:
+        return {
+            'url': self._status['request_url'],
+            'datetime': self.datetime(),
+            'timestamp': self.timestamp(),
+            'author_ip': self.author_ip(),
+            'author_id': self.author_id(),
+            'author_nickname': self.author_nickname(),
+            'title': self.title(),
+            'content': self.content(),
+            'comments': self.comments(),
+            'hrefs_in_article': self.hrefs_in_article(),
+            'herfs_in_comments': herfs_in_comments(),
+            'board': self._status['looking_for'][0],
         }
 
     def datetime(self) -> str:
@@ -76,12 +94,18 @@ class PttArticleViewer(Connection, ArticleViewer):
         return self._soup.select(self.SELECTOR['ARTICLE_META']['TITLE'])[0].text
 
     def content(self) -> str:
-        soup = BeautifulSoup(features = 'html.parser')
-        soup.append(copy.copy(self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]))
+        soup = self.__copy_soup(
+            self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
+        )
         self.__decompose_comment_richcontents(soup)
         self.__decompose_comments(soup)
         self.__decompose_article_meta(soup)
         return soup.__repr__()
+
+    def __copy_soup(self, selction) -> BeautifulSoup:
+        soup = BeautifulSoup(features = 'html.parser')
+        soup.append(copy.copy(selction))
+        return soup
 
     def __decompose_article_meta(self, selection) -> None:
         article_metas = selection.select(self.SELECTOR['ARTICLE_META']['ALL'])
@@ -123,7 +147,7 @@ class PttArticleViewer(Connection, ArticleViewer):
                         ),
                     'comment': comment.select(
                         self.SELECTOR['COMMENT_META']['COMMENT']
-                        )[0].text[1:],
+                        )[0].text[2:],
                 }
             )
 
@@ -152,21 +176,15 @@ class PttArticleViewer(Connection, ArticleViewer):
             )
         return search.group(0) if search else ''
 
-    def hrefs(self):
-        output = {}
-        soup = BeautifulSoup(features = 'html.parser')
-        soup.append(copy.copy(self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]))
-        comment_hrefs = soup.select(self.SELECTOR['COMMENT_HREFS'])
-        comment_hrefs = [url['href'] for url in comment_hrefs]
+    def herf_in_article(self):
+        soup = self.__copy_soup(
+            self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
+        )
         self.__decompose_comments(soup)
-        article_hrefs = soup.select(self.SELECTOR['ARTICLE_HREFS'])
-        article_hrefs = [url['href'] for url in article_hrefs]
-        output.setdefault(
-            'comment_hrefs',
-            comment_hrefs
+        return [url['href'] for url in soup.select(self.SELECTOR['ARTICLE_HREFS'])]
+
+    def herf_in_comment(self):
+        soup = self.__copy_soup(
+            self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
         )
-        output.setdefault(
-            'article_hrefs',
-            article_hrefs
-        )
-        return output
+        return [url['href'] for url in soup.select(self.SELECTOR['COMMENT_HREFS'])]
