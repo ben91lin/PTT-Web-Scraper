@@ -6,7 +6,7 @@ class Data:
         Use list comprehension instead of filter(), it's faster and more clearly.
     '''
 
-    def __init__(self, name: str, data: list = []):
+    def __init__(self, name: str = '', data: list = []):
         self._name = name
         self._data = data
         self._OPERATOR = {
@@ -87,4 +87,8 @@ class Data:
         return self
 
     def __repr__(self):
-        return f'{self._name}: 共{len(self._data)}筆'
+        if len(self._data) == 0:
+            return f'{self._name}: It\'s empty.'
+        else:
+            return f'{self._name}: lens({len(self._data)}), {self._data[0].keys()}, size({sys.getsizeof(self._data)}bytes).'
+            
