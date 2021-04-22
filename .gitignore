@@ -1,4 +1,6 @@
 __pycache__
 .pytest_cache
 
+test.ipynb
+
 workspace.code-workspace
