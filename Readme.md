@@ -7,17 +7,28 @@ Completely PTT Board Scraper.
     from ptt_scrpay import PTT
 
     ptt = PTT()
+    # get article list.
     ptt.board('board_name', start_page, end_page)
-    ptt.simple_articles
-    # filter data
-    ptt.simple_articles.pipeline(
+    # filter data.
+    ptt.article_list.pipeline(
         { '$operator': (key, value) },
-        { '$in': ('title', '爆掛') }
+        { '$in': ('title', '爆掛') },
+        ...
     )
+    # get articles.
+    articles = ptt.article()
+    # get article meta only.
+    metas = ptt.meta()
+    # get comment only.
+    comments = ptt.comment()
 
-Some datastructure in there.
-        
-* Simple articles.
+## Pipeline Operators
+
+    '$all', '$in', '$not_in', '$equal', '$==', '$not_equal', '$!=', '$greater', '$>', '$greater_and_equal', '$>=', '$less', '$<', '$less_and_equal', '$<='
+
+## Method & Output.
+
+* board(browse ptt board and get 'article_list'.)
 
         {
             'url': ,
@@ -29,7 +40,7 @@ Some datastructure in there.
             'download_datetime':
         }
 
-* Detailed articles.
+* article
 
         {
             'url': ,
@@ -40,12 +51,25 @@ Some datastructure in there.
             'author_nickname': ,
             'title': ,
             'content': ,
-            'hrefs': ,
+            'comments: ,
+            'href_in_article': ,
+            'href_in_comments: ,
             'board': ,
             'download_datetime':
         }
 
-* Comments.(Some comment doesn't have ip or time, depends on PTT board.)
+* meta
+        {
+            'url': ,
+            'datetime': ,
+            'timestamp': ,
+            'author_ip': ,
+            'author_id': ,
+            'author_nickname': ,
+            'title':
+        }
+
+* comment(Comment only, but some comment doesn't have ip or time, depends on PTT board.)
 
         {
             'url': ,
@@ -55,4 +79,18 @@ Some datastructure in there.
             'tag': ,
             'content': ,
             'download_datetime':
+        }
+
+* href_in_article
+
+        {
+            'url': ,
+            'href_in_article':
+        }
+
+* href_in_comment
+
+        {
+            'url': ,
+            'href_in_comment':
         }
