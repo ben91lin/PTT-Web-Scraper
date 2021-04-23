@@ -1,6 +1,7 @@
 import logging
 import re
 import time
+import typing as t
 from datetime import datetime
 from time import sleep
 from urllib.parse import urljoin
@@ -32,12 +33,13 @@ class PTT:
         if end_page is None:
             end_page = start_page
         viewer = PttBoardViewer(self.headers).get(self.__board_url(board_name))
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         outputs = Data('Article list')
 
         current_page = 0
         while end_page >= current_page and viewer.has_prev_page():
-            if start_page <= current_page: 
-                outputs.data += viewer.articles()
+            if start_page <= current_page:
+                outputs.data += self.__add_download_time(viewer.articles(), now)
             viewer.get(viewer.prev_page())
             current_page += 1
             sleep(self.sleep)
@@ -57,14 +59,24 @@ class PTT:
             )
             )
 
+    def __add_download_time(self, target: t.Union[list, dict], time):
+        if isinstance(target, dict):
+            target['download_time'] = time
+        if isinstance(target, list):
+            for t in target:
+                t['download_time'] = time
+        return target
+                
+
     def meta(self):
         viewer = PttArticleViewer(self.headers)
         urls = [data['url'] for data in self.article_list.data]
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         outputs = Data('Metas')
 
         for url in urls:
             outputs.data.append(
-                viewer.get(url).meta()
+                self.__add_download_time(viewer.get(url).meta(), now)
             )
             sleep(self.sleep)
 
@@ -73,11 +85,12 @@ class PTT:
     def article(self):
         viewer = PttArticleViewer(self.headers)
         urls = [data['url'] for data in self.article_list.data]
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         outputs = Data('Articles')
 
         for url in urls:
             outputs.data.append(
-                viewer.get(url).article()
+                self.__add_download_time(viewer.get(url).article(), now)
             )
             sleep(self.sleep)
 
@@ -85,28 +98,32 @@ class PTT:
 
     def comment(self):
         viewer = PttArticleViewer(self.headers)
-        outputs = Data('Comments')
         urls = [data['url'] for data in self.article_list.data]
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        outputs = Data('Comments')
 
         for url in urls:
             comments = viewer.get(url).comments()
             for c in comments:
                 c['url'] = url
-            outputs.data += comments
+            outputs.data += self.__add_download_time(comments, now)
             sleep(self.sleep)
 
         return outputs
 
     def href_in_article(self):
         viewer = PttArticleViewer(self.headers)
-        outputs = Data('Href in Article')
         urls = [data['url'] for data in self.article_list.data]
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        outputs = Data('Href in Article')
+        
 
         for url in urls:
             outputs.data.append(
                 {
                     'url': url,
-                    'href_in_article': viewer.get(url).href_in_article()
+                    'href_in_article': viewer.get(url).href_in_article(),
+                    'download_time': now
                 }
             )
             sleep(self.sleep)
@@ -115,14 +132,16 @@ class PTT:
 
     def href_in_comment(self):
         viewer = PttArticleViewer(self.headers)
-        outputs = Data('Href in Comment')
         urls = [data['url'] for data in self.article_list.data]
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        outputs = Data('Href in Comment')
 
         for url in urls:
             outputs.data.append(
                 {
                     'url': url,
-                    'href_in_comment': viewer.get(url).href_in_comment()
+                    'href_in_comment': viewer.get(url).href_in_comment(),
+                    'download_time': now
                 }
             )
             sleep(self.sleep)

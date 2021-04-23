@@ -39,7 +39,7 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'title': ,
             'push_number': ,
             'board': ,
-            'download_datetime':
+            'download_time':
         }
 
 * article
@@ -57,7 +57,7 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'href_in_article': ,
             'href_in_comments: ,
             'board': ,
-            'download_datetime':
+            'download_time':
         }
 
 * meta
@@ -69,7 +69,8 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'author_ip': ,
             'author_id': ,
             'author_nickname': ,
-            'title':
+            'title': ,
+            'download_time'
         }
 
 * comment
@@ -83,19 +84,21 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'commentor_ip': ,
             'tag': ,
             'content': ,
-            'download_datetime':
+            'download_time':
         }
 
 * href_in_article
 
         {
             'url': ,
-            'href_in_article':
+            'href_in_article': ,
+            'download_time'
         }
 
 * href_in_comment
 
         {
             'url': ,
-            'href_in_comment':
+            'href_in_comment': ,
+            'download_time'
         }
