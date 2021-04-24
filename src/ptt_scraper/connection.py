@@ -21,7 +21,7 @@ class Connection():
         if not self._check_url(url): 
             raise Exception(f'This url is not a PTT link.')
 
-        headers = headers if headers is not None else self._status['headers']
+        headers = headers or self._status['headers']
         request = requests.get(url, headers = headers)
         self._set_status(url, headers, request)
 

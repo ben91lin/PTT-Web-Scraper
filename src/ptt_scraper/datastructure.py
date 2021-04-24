@@ -8,7 +8,7 @@ class Data:
 
     def __init__(self, name: str = '', data: list = None):
         self._name = name
-        self._data = [] if data is None else data
+        self._data = data or []
         self._OPERATOR = {
             '$all': self.all,
             '$in': self.contain,
