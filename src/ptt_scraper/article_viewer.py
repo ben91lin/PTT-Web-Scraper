@@ -157,7 +157,7 @@ class PttArticleViewer(Connection, ArticleViewer):
 
     def push_number(self) -> int:
         selector = f'{self.SELECTOR["COMMENTS"]} {self.SELECTOR["COMMENT_META"]["TAG"]}'
-        tags = [element[0].text[:1] for element in self._soup.select(selector)]
+        tags = [element.text[:1] for element in self._soup.select(selector)]
         map_ = {
             '推': 1,
             '噓': -1,
