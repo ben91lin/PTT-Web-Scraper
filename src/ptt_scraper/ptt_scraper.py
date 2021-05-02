@@ -37,7 +37,7 @@ class PTT:
         outputs = Data('Article list')
 
         current_page = 0
-        while end_page >= current_page and viewer.has_prev_page():
+        while viewer.has_prev_page() and (end_page == -1 or end_page >= current_page):
             if start_page <= current_page:
                 outputs.data += self.__add_download_time(viewer.articles(), now)
             viewer.get(viewer.prev_page())
