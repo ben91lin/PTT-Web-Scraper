@@ -51,6 +51,7 @@ class PttArticleViewer(Connection, ArticleViewer):
             'author_id': self.author_id(),
             'author_nickname': self.author_nickname(),
             'title': self.title(),
+            'push_number': self.push_number(),
             'board': self._status['looking_for'][0],
         }
 
@@ -63,6 +64,7 @@ class PttArticleViewer(Connection, ArticleViewer):
             'author_id': self.author_id(),
             'author_nickname': self.author_nickname(),
             'title': self.title(),
+            'push_number': self.push_number(),
             'content': self.content(),
             'comments': self.comments(),
             'href_in_article': self.href_in_article(),
@@ -152,6 +154,20 @@ class PttArticleViewer(Connection, ArticleViewer):
             )
 
         return outputs
+
+    def push_number(self) -> int:
+        selector = f'{self.SELECTOR["COMMENTS"]} {self.SELECTOR["COMMENT_META"]["TAG"]}'
+        tags = [element[0].text[:1] for element in self._soup.select(selector)]
+        map_ = {
+            '推': 1,
+            '噓': -1,
+        }
+        output = 0
+
+        for tag in tags:
+            output += map_.get(tag, 0)
+
+        return output
 
     def __comment_datetime(self, text):
         search = re.search(
