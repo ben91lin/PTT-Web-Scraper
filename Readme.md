@@ -52,6 +52,7 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'author_id': ,
             'author_nickname': ,
             'title': ,
+            'push_number': ,
             'content': ,
             'comments: ,
             'href_in_article': ,
@@ -70,7 +71,8 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
             'author_id': ,
             'author_nickname': ,
             'title': ,
-            'download_time'
+            'push_number': ,
+            'download_time':
         }
 
 * comment
@@ -92,7 +94,7 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
         {
             'url': ,
             'href_in_article': ,
-            'download_time'
+            'download_time':
         }
 
 * href_in_comment
@@ -100,5 +102,5 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
         {
             'url': ,
             'href_in_comment': ,
-            'download_time'
+            'download_time':
         }
