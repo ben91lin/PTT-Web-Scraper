@@ -31,7 +31,7 @@ class Connection():
             return self
         else:
             self.soup = None
-            raise Exception(f'Request to {url} is failed, response status is {req.status_code}')
+            raise Exception(f'Request to {url} is failed, response status is {request.status_code}')
 
     def _reset_status(self) -> None:
         self._status['headers'] = self._original_headers
