@@ -37,14 +37,16 @@ class PTT:
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         outputs = Data('Article list')
 
-        viewer.get(start_page)
-        current = start
-        while viewer.has_prev_page() and (end == -1 or end > current):
-            if start <= current:
-                outputs.data += self.__add_download_time(viewer.articles(), now)
-            viewer.get(viewer.prev_page())
-            current += 1
-            sleep(self.sleep)
+        if start_page is not None:
+            current = start
+            viewer.get(start_page)
+
+            while viewer.has_prev_page() and (end == -1 or end > current):
+                if start <= current:
+                    outputs.data += self.__add_download_time(viewer.articles(), now)
+                current += 1
+                viewer.get(viewer.prev_page())
+                sleep(self.sleep)
 
         self.article_list = outputs
         return self.article_list
@@ -61,14 +63,14 @@ class PTT:
         viewer.get(self.__board_url(board_name))
         page_number = self.__page_number(viewer.prev_page())
         if page_number > start:
-            return self.__board_url(board_name, page_number)
+            return self.__board_url(board_name, str(page_number - start + 1))
         else:
             return None
 
     def __board_url(
         self,
         board_name: str,
-        page_number: int = ''
+        page_number: str = ''
         ) -> str:
         return urljoin(
             self.BASE_URL,
@@ -87,8 +89,8 @@ class PTT:
             )
             )
     
-    def __page_number(self, board_url: str) -> str:
-        return board_url.split('index')[1].split('.html')[0]
+    def __page_number(self, board_url: str) -> int:
+        return int(board_url.split('index')[1].split('.html')[0])
 
     def __add_download_time(
         self,
