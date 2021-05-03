@@ -27,39 +27,74 @@ class PTT:
     def board(
         self,
         board_name: str,
-        start_page: int,
-        end_page: int = None
+        start: int,
+        end: int = None
         ):
-        if end_page is None:
-            end_page = start_page
-        viewer = PttBoardViewer(self.headers).get(self.__board_url(board_name))
+        if end is None:
+            end = start + 1
+        viewer = PttBoardViewer(self.headers)
+        start_page = self.__start_page(viewer, start, board_name)
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         outputs = Data('Article list')
 
-        current_page = 0
-        while viewer.has_prev_page() and (end_page == -1 or end_page >= current_page):
-            if start_page <= current_page:
+        viewer.get(start_page)
+        current = start
+        while viewer.has_prev_page() and (end == -1 or end > current):
+            if start <= current:
                 outputs.data += self.__add_download_time(viewer.articles(), now)
             viewer.get(viewer.prev_page())
-            current_page += 1
+            current += 1
             sleep(self.sleep)
 
         self.article_list = outputs
         return self.article_list
 
-    def __board_url(self, board_name):
+    def __start_page(
+        self,
+        viewer: 'PttBoardViewer',
+        start: int,
+        board_name: str
+        ):
+        if start == 0:
+            return self.__board_url(board_name)
+
+        viewer.get(self.__board_url(board_name))
+        page_number = self.__page_number(viewer.prev_page())
+        if page_number > start:
+            return self.__board_url(board_name, page_number)
+        else:
+            return None
+
+    def __board_url(
+        self,
+        board_name: str,
+        page_number: int = ''
+        ) -> str:
         return urljoin(
             self.BASE_URL,
             '/'.join(
                 [
                     'bbs',
                     board_name.capitalize(),
-                    'index.html'
+                    ''.join(
+                        [
+                            'index',
+                            page_number,
+                            '.html'
+                        ]
+                    )
                 ]
             )
             )
+    
+    def __page_number(self, board_url: str) -> str:
+        return board_url.split('index')[1].split('.html')[0]
 
-    def __add_download_time(self, target: t.Union[list, dict], time):
+    def __add_download_time(
+        self,
+        target: t.Union[list, dict],
+        time
+        ) -> t.Union[list, dict]:
         if isinstance(target, dict):
             target['download_time'] = time
         if isinstance(target, list):
