@@ -1,8 +1,5 @@
-import logging
 import re
-import requests
 import typing as t
-from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 from abstract.board_viewer import BoardViewer
@@ -17,7 +14,7 @@ class PttBoardViewer(Connection, BoardViewer):
             'DATE': 'div.meta > div.date',
             'AUTHOR': 'div.meta > div.author',
             'TITLE': 'div.title > a',
-            'PUSH_NUMBER': 'div.nrec',
+            'PUSH': 'div.nrec',
             'URL': 'div.title > a'
         }
     }
@@ -69,6 +66,7 @@ class PttBoardViewer(Connection, BoardViewer):
 
             outputs.append(
                 {
+                    'board': self._status['looking_for'][0],
                     'url': urljoin(
                         self.BASE_URL,
                         article.select(
@@ -78,7 +76,7 @@ class PttBoardViewer(Connection, BoardViewer):
                     'date': article.select(
                         self.SELECTOR["ARTICLE_META"]["DATE"]
                         )[0].text,
-                    'author_id': article.select(
+                    'author': article.select(
                         self.SELECTOR["ARTICLE_META"]["AUTHOR"]
                         )[0].text,
                     'title': re.escape(
@@ -86,12 +84,11 @@ class PttBoardViewer(Connection, BoardViewer):
                             self.SELECTOR["ARTICLE_META"]["TITLE"]
                         )[0].text
                         ),
-                    'push_number': self.__numerate_push(
+                    'push': self.__numerate_push(
                         article.select(
-                            self.SELECTOR["ARTICLE_META"]["PUSH_NUMBER"]
+                            self.SELECTOR["ARTICLE_META"]["PUSH"]
                         )[0].text
-                        ),
-                    'board': self._status['looking_for'][0]
+                        )
                 }
                 )
 
@@ -100,9 +97,9 @@ class PttBoardViewer(Connection, BoardViewer):
     def __is_deleted(self, soup) -> bool:
         return soup.select('div.title > a') == []
 
-    def __numerate_push(self, push_number: str) -> int:
-        if push_number == '爆': return 100
-        if push_number == '': return 0
-        if push_number == 'XX': return -100
-        if push_number[0] == 'X': return -(int(push_number[1]) * 10)
-        return int(push_number)
+    def __numerate_push(self, push: str) -> int:
+        if push == '': return 0
+        if push == '爆': return 100
+        if push == 'XX': return -100
+        if push[0] == 'X': return -(int(push[1]) * 10)
+        return int(push)

@@ -15,7 +15,7 @@ class ArticleViewer(abc.ABC):
         return NotImplemented
 
     @abc.abstractmethod
-    def datetime() -> str:
+    def timestamp() -> str:
         return NotImplemented
 
     @abc.abstractmethod
@@ -27,5 +27,5 @@ class ArticleViewer(abc.ABC):
         return NotImplemented
 
     @abc.abstractmethod
-    def hrefs() -> list:
+    def href() -> list:
         return NotImplemented

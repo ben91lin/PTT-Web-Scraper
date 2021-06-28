@@ -1,6 +1,5 @@
 import pytest
 import re
-from bs4 import BeautifulSoup
 from board_viewer import PttBoardViewer
 
 @pytest.fixture
@@ -40,5 +39,5 @@ def test_articles(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/index.html')
     article_metas = instance.articles()
     assert isinstance(article_metas, list)
-    assert list(article_metas[0].keys()) == ['url', 'date', 'author_id', 'title', 'push_number', 'board']
+    assert list(article_metas[0].keys()) == ['board', 'url', 'date', 'author', 'title', 'push']
 

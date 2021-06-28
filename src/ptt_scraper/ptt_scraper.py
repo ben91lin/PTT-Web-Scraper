@@ -1,6 +1,6 @@
-import logging
-import re
-import time
+# import logging
+# import re
+# import time
 import typing as t
 from datetime import datetime
 from time import sleep
@@ -102,22 +102,21 @@ class PTT:
         if isinstance(target, list):
             for t in target:
                 t['download_time'] = time
-        return target
-                
+        return target 
 
-    def meta(self):
-        viewer = PttArticleViewer(self.headers)
-        urls = [data['url'] for data in self.article_list.data]
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        outputs = Data('Metas')
+    # def meta(self):
+    #     viewer = PttArticleViewer(self.headers)
+    #     urls = [data['url'] for data in self.article_list.data]
+    #     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #     outputs = Data('Metas')
 
-        for url in urls:
-            outputs.data.append(
-                self.__add_download_time(viewer.get(url).meta(), now)
-            )
-            sleep(self.sleep)
+    #     for url in urls:
+    #         outputs.data.append(
+    #             self.__add_download_time(viewer.get(url).meta(), now)
+    #         )
+    #         sleep(self.sleep)
 
-        return outputs
+    #     return outputs
 
     def article(self):
         viewer = PttArticleViewer(self.headers)
@@ -133,54 +132,54 @@ class PTT:
 
         return outputs
 
-    def comment(self):
-        viewer = PttArticleViewer(self.headers)
-        urls = [data['url'] for data in self.article_list.data]
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        outputs = Data('Comments')
+    # def comment(self):
+    #     viewer = PttArticleViewer(self.headers)
+    #     urls = [data['url'] for data in self.article_list.data]
+    #     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #     outputs = Data('Comments')
 
-        for url in urls:
-            comments = viewer.get(url).comments()
-            for c in comments:
-                c['url'] = url
-            outputs.data += self.__add_download_time(comments, now)
-            sleep(self.sleep)
+    #     for url in urls:
+    #         comments = viewer.get(url).comments()
+    #         for c in comments:
+    #             c['url'] = url
+    #         outputs.data += self.__add_download_time(comments, now)
+    #         sleep(self.sleep)
 
-        return outputs
+    #     return outputs
 
-    def href_in_article(self):
-        viewer = PttArticleViewer(self.headers)
-        urls = [data['url'] for data in self.article_list.data]
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        outputs = Data('Href in Article')
+    # def href_in_article(self):
+    #     viewer = PttArticleViewer(self.headers)
+    #     urls = [data['url'] for data in self.article_list.data]
+    #     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #     outputs = Data('Href in Article')
         
 
-        for url in urls:
-            outputs.data.append(
-                {
-                    'url': url,
-                    'href_in_article': viewer.get(url).href_in_article(),
-                    'download_time': now
-                }
-            )
-            sleep(self.sleep)
+    #     for url in urls:
+    #         outputs.data.append(
+    #             {
+    #                 'url': url,
+    #                 'href_in_article': viewer.get(url).href_in_article(),
+    #                 'download_time': now
+    #             }
+    #         )
+    #         sleep(self.sleep)
 
-        return outputs
+    #     return outputs
 
-    def href_in_comment(self):
-        viewer = PttArticleViewer(self.headers)
-        urls = [data['url'] for data in self.article_list.data]
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        outputs = Data('Href in Comment')
+    # def href_in_comment(self):
+    #     viewer = PttArticleViewer(self.headers)
+    #     urls = [data['url'] for data in self.article_list.data]
+    #     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #     outputs = Data('Href in Comment')
 
-        for url in urls:
-            outputs.data.append(
-                {
-                    'url': url,
-                    'href_in_comment': viewer.get(url).href_in_comment(),
-                    'download_time': now
-                }
-            )
-            sleep(self.sleep)
+    #     for url in urls:
+    #         outputs.data.append(
+    #             {
+    #                 'url': url,
+    #                 'href_in_comment': viewer.get(url).href_in_comment(),
+    #                 'download_time': now
+    #             }
+    #         )
+    #         sleep(self.sleep)
 
-        return outputs
+    #     return outputs

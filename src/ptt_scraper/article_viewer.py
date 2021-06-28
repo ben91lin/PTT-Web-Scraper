@@ -1,10 +1,10 @@
 import copy
-import logging
 import re
-import requests
 import typing as t
 from bs4 import BeautifulSoup
 from datetime import datetime
+
+from pluggy.manager import DistFacade
 from abstract.article_viewer import ArticleViewer
 from connection import Connection
 
@@ -39,61 +39,16 @@ class PttArticleViewer(Connection, ArticleViewer):
         'datetime': re.compile(r'[0-9]{2}\/[0-9]{2}(\s[0-9]{2}\:[0-9]{2})?')
     }
 
-    def __init__(self, headers: dict):
+    def __init__(self, headers: dict) -> None:
         super().__init__(headers)
-
-    def meta(self) -> dict:
-        return {
-            'url': self._status['request_url'],
-            'datetime': self.datetime(),
-            'timestamp': self.timestamp(),
-            'author_ip': self.author_ip(),
-            'author_id': self.author_id(),
-            'author_nickname': self.author_nickname(),
-            'title': self.title(),
-            'push_number': self.push_number(),
-            'board': self._status['looking_for'][0],
-        }
 
     def article(self) -> dict:
         return {
-            'url': self._status['request_url'],
-            'datetime': self.datetime(),
-            'timestamp': self.timestamp(),
-            'author_ip': self.author_ip(),
-            'author_id': self.author_id(),
-            'author_nickname': self.author_nickname(),
-            'title': self.title(),
-            'push_number': self.push_number(),
             'content': self.content(),
+            'meta': self.meta(),
             'comments': self.comments(),
-            'href_in_article': self.href_in_article(),
-            'href_in_comment': self.href_in_comment(),
-            'board': self._status['looking_for'][0],
+            'href': self.href(),
         }
-
-    def datetime(self) -> str:
-        return self._soup.select(self.SELECTOR['ARTICLE_META']['DATETIME'])[0].text
-
-    def timestamp(self) -> float:
-        dt = datetime.strptime(self.datetime(), "%a %b %d %H:%M:%S %Y")
-        return datetime.timestamp(dt)
-
-    def author_ip(self) -> str:
-        search = re.search(self.RE['author_ip'], self._soup.text)
-        return search.group(0) if search else ''
-
-    def author(self) -> str:
-        return self._soup.select(self.SELECTOR['ARTICLE_META']['AUTHOR'])[0].text
-
-    def author_id(self) -> str:
-        return self.author().split(' (')[0]
-    
-    def author_nickname(self) -> str:
-        return self.author().split(' (')[1].split(')')[0]
-
-    def title(self) -> str:
-        return self._soup.select(self.SELECTOR['ARTICLE_META']['TITLE'])[0].text
 
     def content(self) -> str:
         soup = self.__copy_soup(
@@ -124,6 +79,49 @@ class PttArticleViewer(Connection, ArticleViewer):
         for element in comments:
             element.decompose()
 
+    def meta(self) -> dict:
+        return {
+                'board': self._status['looking_for'][0],
+                'url': self._status['request_url'],
+                'timestamp': self.timestamp(),
+                'title': self.title(),
+                'push': self.push(),
+                'author': self.author()
+            }
+
+    def timestamp(self) -> float:
+        dt = datetime.strptime(
+            self._soup.select(self.SELECTOR['ARTICLE_META']['DATETIME'])[0].text,
+            '%a %b %d %H:%M:%S %Y'
+            )
+        return datetime.timestamp(dt)
+
+    def title(self) -> str:
+        return self._soup.select(self.SELECTOR['ARTICLE_META']['TITLE'])[0].text
+
+    def push(self) -> int:
+        selector = f'{self.SELECTOR["COMMENTS"]} {self.SELECTOR["COMMENT_META"]["TAG"]}'
+        tags = [element.text[:1] for element in self._soup.select(selector)]
+        map_ = {
+            '推': 1,
+            '噓': -1,
+        }
+
+        output = 0
+        for tag in tags:
+            output += map_.get(tag, 0)
+
+        return output
+
+    def author(self) -> dict:
+        text = self._soup.select(self.SELECTOR['ARTICLE_META']['AUTHOR'])[0].text
+        search = re.search(self.RE['author_ip'], self._soup.text)
+        return {
+            'ip': search.group(0) if search else '',
+            'id': text.split(' (')[0],
+            'nickname': text.split(' (')[0] 
+        }
+
     def comments(self) -> list[dict]:
         selections = self._soup.select(self.SELECTOR['COMMENTS'])
         outputs = []
@@ -131,7 +129,8 @@ class PttArticleViewer(Connection, ArticleViewer):
         for comment in selections:
             outputs.append(
                 {
-                    'comment_datetime': self.__comment_datetime(
+                    'url': self._status['request_url'],
+                    'date': self.__comment_datetime(
                         comment.select(
                             self.SELECTOR['COMMENT_META']['IPDATETIME']
                             )[0].text
@@ -139,37 +138,16 @@ class PttArticleViewer(Connection, ArticleViewer):
                     'tag': comment.select(
                         self.SELECTOR['COMMENT_META']['TAG']
                         )[0].text[:1],
-                    'commentor_id': comment.select(
-                        self.SELECTOR['COMMENT_META']['COMMENTOR']
-                        )[0].text,
-                    'commentor_ip': self.__commentor_ip(
-                        comment.select(
-                            self.SELECTOR['COMMENT_META']['IPDATETIME']
-                            )[0].text
-                        ),
-                    'comment': comment.select(
+                    'content': comment.select(
                         self.SELECTOR['COMMENT_META']['COMMENT']
                         )[0].text[2:],
+                    'commentor': self.commentor(comment),
                 }
             )
 
         return outputs
 
-    def push_number(self) -> int:
-        selector = f'{self.SELECTOR["COMMENTS"]} {self.SELECTOR["COMMENT_META"]["TAG"]}'
-        tags = [element.text[:1] for element in self._soup.select(selector)]
-        map_ = {
-            '推': 1,
-            '噓': -1,
-        }
-        output = 0
-
-        for tag in tags:
-            output += map_.get(tag, 0)
-
-        return output
-
-    def __comment_datetime(self, text):
+    def __comment_datetime(self, text) -> str:
         search = re.search(
             self.RE['datetime'],
             text
@@ -182,7 +160,19 @@ class PttArticleViewer(Connection, ArticleViewer):
     #     dt = datetime.strptime(self.datetime(), "%a %b %d %H:%M:%S %Y")
     #     return datetime.timestamp(dt)
 
-    def __commentor_ip(self, text):
+    def commentor(self, comment) -> dict:
+        return {
+            'id': comment.select(
+                        self.SELECTOR['COMMENT_META']['COMMENTOR']
+                        )[0].text,
+            'ip': self.__commentor_ip(
+                    comment.select(
+                        self.SELECTOR['COMMENT_META']['IPDATETIME']
+                        )[0].text
+                )
+        }
+
+    def __commentor_ip(self, text) -> str:
         '''
         BBS PTT has two kind of board, one display ip address, another none.
         '''
@@ -192,20 +182,20 @@ class PttArticleViewer(Connection, ArticleViewer):
             )
         return search.group(0) if search else ''
 
-    def hrefs(self):
+    def href(self) -> dict:
         return {
-            'href_in_article': self.href_in_article(),
-            'href_in_comment': self.href_in_comment()
+            'article': self.href_in_article(),
+            'comments': self.href_in_comment()
         }
 
-    def href_in_article(self):
+    def href_in_article(self) -> list:
         soup = self.__copy_soup(
             self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
         )
         self.__decompose_comments(soup)
         return [url['href'] for url in soup.select(self.SELECTOR['ARTICLE_HREFS'])]
 
-    def href_in_comment(self):
+    def href_in_comment(self) -> list:
         soup = self.__copy_soup(
             self._soup.select(self.SELECTOR['ARTICLE_CONTENT'])[0]
         )

@@ -1,4 +1,3 @@
-import copy
 import pytest
 from connection import Connection
 
@@ -24,50 +23,41 @@ def test_instance(instance):
         ('https://www.ptt.cc/bbs/Tech_Job/M.1617427229.B.2FB.html', False)
     ]
 )
-
 def test__check_url(instance, url, expected):
     assert instance._check_url(url) == expected
 
 def test_looking_for_board(instance):
-    status_for_board = {
-        'headers': {
-            'cookie': 'over18=1;' 
-            },
-        'request_url': 'https://www.ptt.cc/bbs/Beauty/index3614.html',
-        'response_code': 200,
-        'looking_for': ('Beauty', 'board')
-    }
     instance.get('https://www.ptt.cc/bbs/Beauty/index3614.html')
-    assert instance._status == status_for_board
+    assert instance._status == {
+            'headers': {
+                'cookie': 'over18=1;' 
+                },
+            'request_url': 'https://www.ptt.cc/bbs/Beauty/index3614.html',
+            'response_code': 200,
+            'looking_for': ('Beauty', 'board')
+        }
 
 def test_looking_for_article(instance):
-    status_for_article = {
-        'headers': {},
-        'request_url': 'https://www.ptt.cc/bbs/Beauty/M.1617413202.A.764.html',
-        'response_code': 200,
-        'looking_for': ('Beauty', 'article')
-    }
     instance.get(
         'https://www.ptt.cc/bbs/Beauty/M.1617413202.A.764.html',
         headers = {}
         )
-    assert instance._status == status_for_article
+    assert instance._status['looking_for'] == ('Beauty', 'article')
 
 def test__reset_status(instance):
     instance.get('https://www.ptt.cc/bbs/Beauty/M.1617413202.A.764.html')
     instance._reset_status()
-    status_for_board = {
-        'headers': {
-            'cookie': 'over18=1;' 
-            },
-        'request_url': None,
-        'response_code': None,
-        'looking_for': None
-    }
-    assert instance._status == status_for_board
+    assert instance._status == {
+            'headers': {
+                'cookie': 'over18=1;' 
+                },
+            'request_url': None,
+            'response_code': None,
+            'looking_for': None
+        }
 
 @pytest.mark.parametrize(
-    "url",
+    'url',
     [
         'https://www.ptt.cc/bbs/Beauty/index.htmlasd',
         'https://www.ptt.cc/bbs/Beauty/index12312.html'
@@ -75,4 +65,4 @@ def test__reset_status(instance):
 )
 def test_get_exception(instance, url):
     with pytest.raises(Exception):
-        instance.get(test_case)
+        instance.get(url)

@@ -17,10 +17,6 @@ Completely PTT Board Scraper.
     )
     # get articles.
     articles = ptt.article()
-    # get article meta only.
-    metas = ptt.meta()
-    # get comment only.
-    comments = ptt.comment()
 
 ## Pipeline Operators
 
@@ -33,74 +29,46 @@ $all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equ
     Browse ptt board and get 'article_list'.
 
         {
+            'board': ,
             'url': ,
             'date': ,
-            'author_id': ,
+            'author': ,
             'title': ,
-            'push_number': ,
-            'board': ,
-            'download_time':
+            'push': ,
+            'update':
         }
 
 * article
 
         {
-            'url': ,
-            'datetime': ,
-            'timestamp': ,
-            'author_ip': ,
-            'author_id': ,
-            'author_nickname': ,
-            'title': ,
-            'push_number': ,
             'content': ,
-            'comments: ,
-            'href_in_article': ,
-            'href_in_comments: ,
-            'board': ,
-            'download_time':
-        }
-
-* meta
-
-        {
-            'url': ,
-            'datetime': ,
-            'timestamp': ,
-            'author_ip': ,
-            'author_id': ,
-            'author_nickname': ,
-            'title': ,
-            'push_number': ,
-            'download_time':
-        }
-
-* comment
-    
-    Comment only, but some comment doesn't have ip or time, depends on  board.
-
-        {
-            'url': ,
-            'datetime': ,
-            'commentor_id': ,
-            'commentor_ip': ,
-            'tag': ,
-            'content': ,
-            'download_time':
-        }
-
-* href_in_article
-
-        {
-            'url': ,
-            'href_in_article': ,
-            'download_time':
-        }
-
-* href_in_comment
-
-        {
-            'url': ,
-            'href_in_comment': ,
-            'download_time':
+            'meta': {
+                'board': ,
+                'url': ,
+                'timestamp': ,
+                'title': ,
+                'push': ,
+                'author': {
+                    'ip': ,
+                    'id': ,
+                    'nickname':
+                }
+            },
+            'comments: [
+                {
+                    'url': ,
+                    'date': ,
+                    'tag': ,
+                    'content': ,
+                    'commentor': {
+                        'id': ,
+                        'ip':
+                    }
+                }
+            ],
+            'href': {
+                'article': ,
+                'comments':
+            },
+            'update':
         }
