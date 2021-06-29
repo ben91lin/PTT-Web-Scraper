@@ -20,7 +20,15 @@ Completely PTT Board Scraper.
 
 ## Pipeline Operators
 
-$all, $in, $not_in, $equal, $==, $not_equal, $!=, $greater, $>, $greater_and_equal, $>=, $less, $<, $less_and_equal, $<=
+    $all,
+    $in,
+    $not_in,
+    $eq, $==,
+    $ne, $!=,
+    $gt, $>,
+    $gte, $>=,
+    $lt, $<,
+    $lte, $<=
 
 ## Method & Output.
 
