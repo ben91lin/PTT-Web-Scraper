@@ -105,7 +105,7 @@ class PTT:
             return target 
         if isinstance(target, list):
             for t in target:
-                self.update(t)
+                self.update(t, time)
 
     def article(self):
         viewer = PttArticleViewer(self.headers)
