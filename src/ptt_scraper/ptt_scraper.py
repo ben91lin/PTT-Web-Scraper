@@ -97,12 +97,14 @@ class PTT:
         target: t.Union[list, dict],
         time
         ) -> t.Union[list, dict]:
+        assert isinstance(target, dict) or isinstance(target, list)
         if isinstance(target, dict):
             target['update'] = time
+            return target 
         if isinstance(target, list):
             for t in target:
-                t['update'] = time
-        return target 
+                self.update(t)
+        
 
     # def meta(self):
     #     viewer = PttArticleViewer(self.headers)
