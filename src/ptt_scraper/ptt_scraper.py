@@ -43,9 +43,7 @@ class PTT:
 
             while viewer.has_prev_page() and (end == -1 or end > current):
                 if start <= current:
-                    outputs.data.append(
-                        self.update(viewer.articles(), now)
-                    )
+                    outputs.data += self.update(viewer.articles(), now)
                 current += 1
                 viewer.get(viewer.prev_page())
                 sleep(self.sleep)
@@ -96,16 +94,15 @@ class PTT:
 
     def update(
         self,
-        target: t.Union[list, dict],
+        target: t.Union[dict, list],
         time
-        ) -> t.Union[list, dict]:
-        assert isinstance(target, dict) or isinstance(target, list)
+        ) -> t.Union[dict, list]:
         if isinstance(target, dict):
             target['update'] = time
-            return target 
-        if isinstance(target, list):
+        else:
             for t in target:
-                self.update(t, time)
+                t['update'] = time
+        return target 
 
     def article(self):
         viewer = PttArticleViewer(self.headers)
