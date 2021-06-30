@@ -111,7 +111,7 @@ class PTT:
         outputs = list()
 
         for url in urls:
-            outputs.data.append(
+            outputs.append(
                 self.update(viewer.get(url).article(), now)
             )
             sleep(self.sleep)
