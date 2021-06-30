@@ -43,7 +43,9 @@ class PTT:
 
             while viewer.has_prev_page() and (end == -1 or end > current):
                 if start <= current:
-                    outputs.data += self.update(viewer.articles(), now)
+                    outputs.data.append(
+                        self.update(viewer.articles(), now)
+                    )
                 current += 1
                 viewer.get(viewer.prev_page())
                 sleep(self.sleep)
