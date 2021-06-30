@@ -43,7 +43,7 @@ class PTT:
 
             while viewer.has_prev_page() and (end == -1 or end > current):
                 if start <= current:
-                    outputs.data += self.__add_download_time(viewer.articles(), now)
+                    outputs.data += self.update(viewer.articles(), now)
                 current += 1
                 viewer.get(viewer.prev_page())
                 sleep(self.sleep)
@@ -92,16 +92,16 @@ class PTT:
     def __page_number(self, board_url: str) -> int:
         return int(board_url.split('index')[1].split('.html')[0])
 
-    def __add_download_time(
+    def update(
         self,
         target: t.Union[list, dict],
         time
         ) -> t.Union[list, dict]:
         if isinstance(target, dict):
-            target['download_time'] = time
+            target['update'] = time
         if isinstance(target, list):
             for t in target:
-                t['download_time'] = time
+                t['update'] = time
         return target 
 
     # def meta(self):
@@ -112,7 +112,7 @@ class PTT:
 
     #     for url in urls:
     #         outputs.data.append(
-    #             self.__add_download_time(viewer.get(url).meta(), now)
+    #             self.update(viewer.get(url).meta(), now)
     #         )
     #         sleep(self.sleep)
 
@@ -126,7 +126,7 @@ class PTT:
 
         for url in urls:
             outputs.data.append(
-                self.__add_download_time(viewer.get(url).article(), now)
+                self.update(viewer.get(url).article(), now)
             )
             sleep(self.sleep)
 
@@ -142,7 +142,7 @@ class PTT:
     #         comments = viewer.get(url).comments()
     #         for c in comments:
     #             c['url'] = url
-    #         outputs.data += self.__add_download_time(comments, now)
+    #         outputs.data += self.update(comments, now)
     #         sleep(self.sleep)
 
     #     return outputs
