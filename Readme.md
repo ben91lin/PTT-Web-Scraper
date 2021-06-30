@@ -20,9 +20,9 @@ Completely PTT Board Scraper.
 
 ## Pipeline Operators
 
-    $all,
-    $in,
-    $not_in,
+    $and, # pass a list, if all condition is True, return True.
+    $or, # pass a list, if any condition is True, return True.
+    $not, # pass a list, if no condition is True, return True.
     $eq, $==,
     $ne, $!=,
     $gt, $>,

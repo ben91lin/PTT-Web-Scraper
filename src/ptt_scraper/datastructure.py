@@ -10,9 +10,9 @@ class Data:
         self._name = name
         self._data = data or []
         self._OPERATOR = {
-            '$all': self.all,
-            '$in': self.contain,
-            '$not_in': self.not_contain,
+            '$and': self.all,
+            '$or': self.contain,
+            '$not': self.not_contain,
             '$eq': self.equal,
             '$==': self.equal,
             '$ne': self.not_equal,
